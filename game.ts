@@ -1,5 +1,9 @@
-const board: HTMLDivElement = document.querySelector<HTMLDivElement>('.board') as HTMLDivElement;
-const wins = [
+const board: HTMLDivElement = document.querySelector('.board') as HTMLDivElement;
+const replayButton: HTMLButtonElement = document.querySelector('.replay') as HTMLButtonElement;
+const body = document.querySelector('body');
+const overlay: HTMLDivElement = document.querySelector('.overlay') as HTMLDivElement;;
+
+const winConditions = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -18,8 +22,27 @@ function createBox(i: number): HTMLDivElement {
     return box;
 }
 
-function createBoard() {
+function clicked(e: Event) {
+    let box = e.target as HTMLDivElement;
+    box.innerText = currentPlayer;
+    let status = checkWin(currentPlayer);
+    if (status?.hasWon) {
+        const winMessage: HTMLDivElement = document.createElement('div');
+        winMessage.classList.add('win');
+        winMessage.innerText = `Player ${status.player} has Won`;
+        body?.appendChild(winMessage);
+        overlay.style.display = 'block';
+        winMessage.appendChild(replayButton);
+        replayButton.style.display = 'inline-block';
+
+    } else {
+        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+    }
+}
+
+function createBoard(): void {
     const table: HTMLTableElement = document.createElement('table');
+
     for (let i = 0; i < 3; i++) {
         const row: HTMLDivElement = document.createElement('tr');
         row.classList.add('row')
@@ -31,28 +54,15 @@ function createBoard() {
     board.appendChild(table);
 }
 
-function clicked(e: Event) {
-    let box = e.target as HTMLDivElement;
-    box.innerText = currentPlayer;
-    let status = checkWin(currentPlayer);
-    if (status?.hasWon) {
-        console.log(`Player ${status.player} has Won`);
 
-    } else {
-        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
-    }
-}
 
 function checkWin(player: string) {
-    const boxes = document.querySelectorAll<HTMLElement>('.box');
-    const currentPlayerBoxes: number[] = [];
-    boxes.forEach(box => {
-        if (box.innerText === player) {
-            currentPlayerBoxes.push(parseInt(box.id));
-        }
-    });
-    for (let win of wins) {
-        let hasWon = win.every(w => {
+    const boxes = [...document.querySelectorAll('.box') as any];
+    const currentPlayerBoxes: number[] = boxes.filter(box => box.innerText === player)
+        .map(box => parseInt(box.id));
+
+    for (let win of winConditions) {
+        const hasWon = win.every(w => {
             return currentPlayerBoxes.indexOf(w) !== -1
         });
         if (hasWon) {
@@ -69,7 +79,9 @@ function startGame() {
     const boxes = document.querySelectorAll<HTMLElement>('.box');
     boxes.forEach((box: HTMLElement) => {
         box.innerText = '';
-    })
+    });
+    overlay.style.display = 'none';
+    document.querySelector('.win')?.remove();
 }
 
 
