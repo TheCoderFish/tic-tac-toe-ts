@@ -20,9 +20,17 @@ table {
     border-collapse: collapse;
 }
 
-.box {
+td {
     border: 1px solid white;
-    display: inline-block;
     width: 150px;
     height: 150px;
+    font: italic 6em "Fira Sans", serif;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.replay {
+    display: none;
 }
